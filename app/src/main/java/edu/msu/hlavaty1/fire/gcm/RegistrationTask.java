@@ -59,14 +59,13 @@ public class RegistrationTask extends AsyncTask<Void, Void, String> {
 
     @Override
     protected void onPostExecute(final String token) {
-    // TODO: uncomment when finished
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                cloud.registerDeviceToCloud(token);
-//            }
-//        }).start();
-//
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                cloud.registerDeviceToCloud(token);
+            }
+        }).start();
+
         Log.i("DEVICE TOKEN", token);
     }
 }

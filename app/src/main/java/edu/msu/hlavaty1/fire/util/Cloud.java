@@ -306,21 +306,66 @@ public class Cloud {
      *
      * URL: fire-save-extinguished.php
      * PARAMS:
-     *      magic: Server Magic
      *      id: id of the fire
-     *      status: (bool) if the fire is still lit
+     *      magic: Server Magic
      *
      * @param fire fire to update
      * @return true if save is successful
      */
     public boolean updateExtinguishedToCloud(Fire fire) {
-        String query = SAVE_EXTINGUISHED_URL + "?id=" + fire.getId() + "&extinguished=" + fire.isExtinguished() + "&magic=" + MAGIC;
+        // Create an XML packet with the information about the current image
+        XmlSerializer xml = Xml.newSerializer();
+        StringWriter writer = new StringWriter();
+
+        try {
+            xml.setOutput(writer);
+
+            xml.startTag(null, "report");
+
+            fire.toXML(xml);
+
+            xml.endTag(null, "report");
+
+            xml.endDocument();
+
+        } catch (IOException e) {
+            // This won't occur when writing to a string
+            return false;
+        }
+
+        final String xmlStr = writer.toString();
+
+        /*
+         * Convert the XML into HTTP POST data
+         */
+        String postDataStr;
+        try {
+            postDataStr = "xml=" + URLEncoder.encode(xmlStr, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            return false;
+        }
+
+        /*
+         * Send the data to the server
+         */
+        byte[] postData = postDataStr.getBytes();
+
+        String query = SAVE_FIRE_URL + "?id=" + fire.getId() + "&magic=" + MAGIC;
 
         InputStream stream = null;
         try {
             URL url = new URL(query);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Length", Integer.toString(postData.length));
+            conn.setUseCaches(false);
+
+            OutputStream out = conn.getOutputStream();
+            out.write(postData);
+            out.close();
 
             int responseCode = conn.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
@@ -343,11 +388,14 @@ public class Cloud {
                 if (status.equals("no")) {
                     return false;
                 }
-            } catch (XmlPullParserException e) {
+
+                // We are done
+            } catch (XmlPullParserException ex) {
+                return false;
+            } catch (IOException ex) {
                 return false;
             }
         } catch (MalformedURLException e) {
-            // Should never happen
             return false;
         } catch (IOException ex) {
             return false;

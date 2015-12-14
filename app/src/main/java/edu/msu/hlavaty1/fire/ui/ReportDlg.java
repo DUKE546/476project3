@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import edu.msu.hlavaty1.fire.fire.Fire;
 import edu.msu.hlavaty1.fire.R;
@@ -51,8 +52,17 @@ public class ReportDlg extends DialogFragment {
                     public void run() {
                         Boolean checked = ((CheckBox) view.findViewById(R.id.checkExtinguished)).isChecked();
                         if (fire.isExtinguished() != checked) {
-                            fire.setExtinguished(checked);
-                            new Cloud(view.getContext()).updateExtinguishedToCloud(fire);
+                            if (!new Cloud(view.getContext()).updateExtinguishedToCloud(fire)) {
+                                view.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(view.getContext(), R.string.extinguished_failed, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                            else {
+                                fire.setExtinguished(checked);
+                            }
                         }
                     }
                 }).start();
