@@ -49,6 +49,8 @@ public class MapManipulator {
 
         });
 
+        map.setMyLocationEnabled(true);
+
         populateFiresOnMap();
     }
 
@@ -81,7 +83,7 @@ public class MapManipulator {
         float[] distance = new float[1];
         Location.distanceBetween(currentLocation.latitude, currentLocation.longitude,
                 tappedlocation.latitude, tappedlocation.longitude, distance);
-        Log.i("IN AREA", "HII");
+        Log.i("Difference", Float.toString(distance[0]));
         if (distance[0] <= 91.44) {
             return true;
         }
