@@ -350,7 +350,7 @@ public class Cloud {
          */
         byte[] postData = postDataStr.getBytes();
 
-        String query = SAVE_FIRE_URL + "?id=" + fire.getId() + "&magic=" + MAGIC;
+        String query = SAVE_EXTINGUISHED_URL + "?id=" + fire.getId() + "&magic=" + MAGIC;
 
         InputStream stream = null;
         try {
