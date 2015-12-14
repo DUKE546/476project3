@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="gcm.gcm-android-endpoints">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/gcm/build/libs/gcm-android-endpoints.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
