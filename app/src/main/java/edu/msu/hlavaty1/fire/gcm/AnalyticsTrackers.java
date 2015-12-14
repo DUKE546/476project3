@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.gcm;
 
 import android.content.Context;
 
@@ -7,6 +7,8 @@ import com.google.android.gms.analytics.Tracker;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import edu.msu.hlavaty1.fire.R;
 
 /**
  * A collection of Google Analytics trackers. Fetch the tracker you need using

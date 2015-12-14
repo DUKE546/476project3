@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.fire;
 
 import android.location.Location;
 import android.widget.FrameLayout;
@@ -7,7 +7,6 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -17,6 +16,12 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import edu.msu.hlavaty1.fire.R;
+import edu.msu.hlavaty1.fire.ui.MapsActivity;
+import edu.msu.hlavaty1.fire.ui.NewReportDlg;
+import edu.msu.hlavaty1.fire.ui.ReportDlg;
+import edu.msu.hlavaty1.fire.util.Cloud;
 
 /**
  * Created by evanhlavaty on 12/13/15.
@@ -119,7 +124,7 @@ public class MapManipulator {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                XmlPullParser reports = cloud.getFiresFromCloud();
+                XmlPullParser reports = cloud.loadFiresFromCloud();
 
                 try {
                     reports.nextTag();      // Advance to first tag

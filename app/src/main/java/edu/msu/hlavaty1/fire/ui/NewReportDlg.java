@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.ui;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -12,6 +12,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
+
+import edu.msu.hlavaty1.fire.fire.Fire;
+import edu.msu.hlavaty1.fire.fire.MapManipulator;
+import edu.msu.hlavaty1.fire.R;
+import edu.msu.hlavaty1.fire.util.Cloud;
 
 /**
  * Created by evanhlavaty on 12/13/15.

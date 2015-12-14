@@ -1,10 +1,12 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
+import edu.msu.hlavaty1.fire.R;
 
 /**
  * Created by evanhlavaty on 12/13/15.

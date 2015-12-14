@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.ui;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,12 +9,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
+import edu.msu.hlavaty1.fire.fire.Fire;
+import edu.msu.hlavaty1.fire.R;
+import edu.msu.hlavaty1.fire.util.Cloud;
 
 /**
  * Created by evanhlavaty on 12/14/15.
@@ -54,7 +52,7 @@ public class ReportDlg extends DialogFragment {
                         Boolean checked = ((CheckBox) view.findViewById(R.id.checkExtinguished)).isChecked();
                         if (fire.isExtinguished() != checked) {
                             fire.setExtinguished(checked);
-                            new Cloud(view.getContext()).saveExtinguishedToCloud(fire);
+                            new Cloud(view.getContext()).updateExtinguishedToCloud(fire);
                         }
                     }
                 }).start();

@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.util;
 
 import android.content.Context;
 import android.util.Xml;
@@ -17,14 +17,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import edu.msu.hlavaty1.fire.fire.Fire;
+
 public class Cloud {
     private static final String MAGIC = "TechItHa6RuzeM8";
 
-    private static final String SAVE_FIRE_URL = "";
-    private static final String GET_FIRES_URL = "";
-    private static final String REGISTER_DEVICE_URL = "";
-    private static final String SAVE_EXTINGUISHED_URL = "";
-
+    private static final String SAVE_FIRE_URL = "http://webdev.cse.msu.edu/~chuppthe/cse476/fire/fire-save.php";
+    private static final String GET_FIRES_URL = "http://webdev.cse.msu.edu/~chuppthe/cse476/fire/fire-load.php";
+    private static final String REGISTER_DEVICE_URL = "http://webdev.cse.msu.edu/~chuppthe/cse476/fire/fire-register-device.php";
+    private static final String SAVE_EXTINGUISHED_URL = "http://webdev.cse.msu.edu/~chuppthe/cse476/fire/fire-save-extinguished.php";
 
     private static final String UTF8 = "UTF-8";
 
@@ -59,10 +60,14 @@ public class Cloud {
      * Register user to the cloud.
      * This should run in a thread
      *
+     * URL: fire-load.php
+     * PARAMS:
+     *      magic: Server Magic
+     *
      * @return XmlPullParser of all fires in DB
      */
-    public XmlPullParser getFiresFromCloud() {
-        String query = GET_FIRES_URL + "?magic=" + MAGIC;
+    public XmlPullParser loadFiresFromCloud() {
+        String query = GET_FIRES_URL + "?magic=" + MAGIC + "&magic=" + MAGIC;
 
         InputStream stream = null;
         XmlPullParser reports = null;
@@ -119,11 +124,16 @@ public class Cloud {
      * Saves a fire to the cloud
      * This should run in a thread!!
      *
+     * URL: fire-save.php
+     * PARAMS:
+     *      magic: Server Magic
+     *      lat: latitude
+     *      long: longitude
+     *
      * @param fire the fire to save to the cloud
      * @return fireId if the save was successful
      */
     public String saveFireToCloud(Fire fire) {
-
         String fireId = null;
 
         // Create an XML packet with the information about the current image
@@ -163,7 +173,7 @@ public class Cloud {
          */
         byte[] postData = postDataStr.getBytes();
 
-        String query = SAVE_FIRE_URL;
+        String query = SAVE_FIRE_URL + "&magic=" + MAGIC;
 
         InputStream stream = null;
         try {
@@ -231,11 +241,16 @@ public class Cloud {
      * Register a device to the cloud.
      * This should be run in a thread
      *
+     * URL: fire-register-device.php
+     * PARAMS:
+     *      magic: Server Magic
+     *      device: the device token
+     *
      * @param deviceToken device token to register
      * @return true if register is successful
      */
     public boolean registerDeviceToCloud(String deviceToken) {
-        String query = REGISTER_DEVICE_URL + "?device=" + deviceToken;
+        String query = REGISTER_DEVICE_URL + "?device=" + deviceToken + "&magic=" + MAGIC;
 
         InputStream stream = null;
         try {
@@ -286,14 +301,20 @@ public class Cloud {
     }
 
     /**
-     * Chnage extinguished state
+     * Change extinguished state
      * This should be run in a thread
      *
-     * @param fire
+     * URL: fire-save-extinguished.php
+     * PARAMS:
+     *      magic: Server Magic
+     *      id: id of the fire
+     *      status: (bool) if the fire is still lit
+     *
+     * @param fire fire to update
      * @return true if save is successful
      */
-    public boolean saveExtinguishedToCloud(Fire fire) {
-        String query = SAVE_EXTINGUISHED_URL + "?id=" + fire.getId() + "&extinguished=" + fire.isExtinguished();
+    public boolean updateExtinguishedToCloud(Fire fire) {
+        String query = SAVE_EXTINGUISHED_URL + "?id=" + fire.getId() + "&extinguished=" + fire.isExtinguished() + "&magic=" + MAGIC;
 
         InputStream stream = null;
         try {

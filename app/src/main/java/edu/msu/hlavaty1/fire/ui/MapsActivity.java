@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.ui;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,7 +18,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+
+import edu.msu.hlavaty1.fire.fire.MapManipulator;
+import edu.msu.hlavaty1.fire.R;
+import edu.msu.hlavaty1.fire.gcm.GCMIntentService;
+import edu.msu.hlavaty1.fire.gcm.RegistrationTask;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -30,7 +34,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private MapManipulator mapManipulator;
 
     private BroadcastReceiver receiver;
-    public static final String RECEIVE = "edu.msu.hlavaty1.fire.MapsActivity.receive";
+    public static final String RECEIVE = "edu.msu.hlavaty1.fire.ui.MapsActivity.receive";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.fire;
 
 import com.google.android.gms.maps.model.LatLng;
 

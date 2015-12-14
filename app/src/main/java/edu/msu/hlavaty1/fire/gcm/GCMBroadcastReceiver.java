@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.gcm;
 
 import android.app.Activity;
 import android.content.ComponentName;

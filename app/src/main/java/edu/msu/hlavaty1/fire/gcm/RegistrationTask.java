@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.gcm;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,6 +11,8 @@ import java.io.IOException;
 
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+
+import edu.msu.hlavaty1.fire.util.Cloud;
 
 /**
  * Created by evanhlavaty on 12/13/15.

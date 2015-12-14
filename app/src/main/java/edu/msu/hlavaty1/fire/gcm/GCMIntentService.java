@@ -1,4 +1,4 @@
-package edu.msu.hlavaty1.fire;
+package edu.msu.hlavaty1.fire.gcm;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import android.os.Looper;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+
+import edu.msu.hlavaty1.fire.ui.MapsActivity;
 
 /**
  * Created by evanhlavaty on 12/13/15.
