@@ -5,18 +5,23 @@ import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class Cloud {
     private static final String MAGIC = "TechItHa6RuzeM8";
 
-    private static final String SEND_LOCATION_URL = "";
-    private static final String GET_LOCATIONS_URL = "";
+    private static final String SAVE_FIRE_URL = "";
+    private static final String GET_FIRES_URL = "";
     private static final String REGISTER_DEVICE_URL = "";
 
 
@@ -55,8 +60,8 @@ public class Cloud {
      *
      * @return true if register is successful
      */
-    public boolean getLocationsFromCloud() {
-        String query = GET_LOCATIONS_URL + "&magic=" + MAGIC;
+    public boolean getFiresFromCloud() {
+        String query = GET_FIRES_URL + "?magic=" + MAGIC;
 
         InputStream stream = null;
         try {
@@ -78,7 +83,7 @@ public class Cloud {
                 xmlR.setInput(stream, UTF8);
 
                 xmlR.nextTag();      // Advance to first tag
-                xmlR.require(XmlPullParser.START_TAG, null, "steam");
+                xmlR.require(XmlPullParser.START_TAG, null, "fire");
 
                 String status = xmlR.getAttributeValue(null, "status");
                 if (status.equals("no")) {
@@ -106,22 +111,73 @@ public class Cloud {
     }
 
     /**
-     * Send location to cloud
-     * This should run in a thread
+     * Saves a fire to the cloud
+     * This should run in a thread!!
      *
-     * @return true if register is successful
+     * @param fire the fire to save to the cloud
+     * @return fireId if the save was successful
      */
-    public boolean sendLocationToCloud(Fire fire) {
-        String query = SEND_LOCATION_URL + "?fire=" + fire.toXML();
+    public String saveFireToCloud(Fire fire) {
+
+        String fireId = null;
+
+        // Create an XML packet with the information about the current image
+        XmlSerializer xml = Xml.newSerializer();
+        StringWriter writer = new StringWriter();
+
+        try {
+            xml.setOutput(writer);
+
+            xml.startTag(null, "fire");
+
+            fire.toXML(xml);
+
+            xml.endTag(null, "fire");
+
+            xml.endDocument();
+
+        } catch (IOException e) {
+            // This won't occur when writing to a string
+            return null;
+        }
+
+        final String xmlStr = writer.toString();
+
+        /*
+         * Convert the XML into HTTP POST data
+         */
+        String postDataStr;
+        try {
+            postDataStr = "xml=" + URLEncoder.encode(xmlStr, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
+
+        /*
+         * Send the data to the server
+         */
+        byte[] postData = postDataStr.getBytes();
+
+        String query = SAVE_FIRE_URL;
 
         InputStream stream = null;
         try {
             URL url = new URL(query);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Length", Integer.toString(postData.length));
+            conn.setUseCaches(false);
+
+            OutputStream out = conn.getOutputStream();
+            out.write(postData);
+            out.close();
+
             int responseCode = conn.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                return false;
+                return null;
             }
 
             stream = conn.getInputStream();
@@ -134,20 +190,25 @@ public class Cloud {
                 xmlR.setInput(stream, UTF8);
 
                 xmlR.nextTag();      // Advance to first tag
-                xmlR.require(XmlPullParser.START_TAG, null, "steam");
+                xmlR.require(XmlPullParser.START_TAG, null, "fire");
 
                 String status = xmlR.getAttributeValue(null, "status");
                 if (status.equals("no")) {
-                    return false;
+                    return null;
                 }
-            } catch (XmlPullParserException e) {
-                return false;
+
+                fireId = xmlR.getAttributeValue(null, "id");
+
+                // We are done
+            } catch (XmlPullParserException ex) {
+                return null;
+            } catch (IOException ex) {
+                return null;
             }
         } catch (MalformedURLException e) {
-            // Should never happen
-            return false;
+            return null;
         } catch (IOException ex) {
-            return false;
+            return null;
         } finally {
             if (stream != null) {
                 try {
@@ -158,7 +219,7 @@ public class Cloud {
             }
         }
 
-        return true;
+        return fireId;
     }
 
     /**
@@ -192,7 +253,7 @@ public class Cloud {
                 xmlR.setInput(stream, UTF8);
 
                 xmlR.nextTag();      // Advance to first tag
-                xmlR.require(XmlPullParser.START_TAG, null, "steam");
+                xmlR.require(XmlPullParser.START_TAG, null, "fire");
 
                 String status = xmlR.getAttributeValue(null, "status");
                 if (status.equals("no")) {

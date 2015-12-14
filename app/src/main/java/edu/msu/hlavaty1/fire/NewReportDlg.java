@@ -75,7 +75,7 @@ public class NewReportDlg extends DialogFragment {
         final Fire fire = new Fire();
         fire.setFurniture(getFurniture());
         fire.setDescription(getDescription());
-        fire.setExtinqished(false);
+        fire.setExtinguished(false);
         fire.setLatLng(location);
 
         final SubmitLoadingDlg submitLoadingDlg = new SubmitLoadingDlg();
@@ -88,8 +88,8 @@ public class NewReportDlg extends DialogFragment {
             public void run() {
                 // Create a cloud object
                 Cloud cloud = new Cloud(view.getContext());
-                final boolean ok = cloud.sendLocationToCloud(fire);
-                if (!ok) {
+                final String id = cloud.saveFireToCloud(fire);
+                if (id == null) {
                     view.post(new Runnable() {
                         @Override
                         public void run() {
@@ -98,6 +98,7 @@ public class NewReportDlg extends DialogFragment {
                         }
                     });
                 } else {
+                    fire.setId(Integer.parseInt(id));
                     mapManipulator.addFire(fire);
                     mapManipulator.addMarkerAndMove(location);
 

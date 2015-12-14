@@ -2,6 +2,10 @@ package edu.msu.hlavaty1.fire;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import org.xmlpull.v1.XmlSerializer;
+
+import java.io.IOException;
+
 /**
  * Created by evanhlavaty on 12/13/15.
  */
@@ -10,10 +14,13 @@ public class Fire {
     private String furniture;
     private String description;
     private LatLng latLng;
-    private boolean extinqished;
+    private Boolean extinguished;
 
-    public String toXML() {
-        return "";
+    public void toXML(XmlSerializer xml) throws IOException {
+        xml.attribute(null, "furniture", furniture);
+        xml.attribute(null, "description", description);
+        xml.attribute(null, "latLng", latLng.toString());
+        xml.attribute(null, "extinguished", extinguished.toString());
     }
 
     public String getFurniture() {
@@ -40,12 +47,12 @@ public class Fire {
         this.latLng = latLng;
     }
 
-    public boolean isExtinqished() {
-        return extinqished;
+    public boolean isExtinguished() {
+        return extinguished;
     }
 
-    public void setExtinqished(boolean extinqished) {
-        this.extinqished = extinqished;
+    public void setExtinguished(boolean extinguished) {
+        this.extinguished = extinguished;
     }
 
     public int getId() {
