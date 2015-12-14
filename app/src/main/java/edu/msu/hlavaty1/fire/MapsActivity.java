@@ -1,8 +1,15 @@
 package edu.msu.hlavaty1.fire;
 
+import android.content.Context;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.WindowManager;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -12,7 +19,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    private ActiveListener activeListener = new ActiveListener();
+    private LocationManager locationManager = null;
+
+    private GoogleMap map;
+    private LatLng currentLocation;
+    private MapManipulator mapManipulator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,8 +34,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Get the location manager
+        locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        new RegistrationTask(this).execute();
     }
 
+    /**
+     * Called when this application becomes foreground again.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerListeners();
+    }
+
+    /**
+     * Called when this application is no longer the foreground application.
+     */
+    @Override
+    protected void onPause() {
+        unregisterListeners();
+        super.onPause();
+    }
 
     /**
      * Manipulates the map once available.
@@ -35,12 +71,76 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    public void onMapReady(GoogleMap map) {
+        this.map = map;
+        mapManipulator =  new MapManipulator(map, this);
     }
+
+    private void setCurrentLocation() {
+        CameraUpdate center = CameraUpdateFactory.newLatLng(currentLocation);
+        CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
+
+        map.moveCamera(center);
+        map.animateCamera(zoom);
+
+        mapManipulator.setCurrentLocation(currentLocation);
+    }
+
+    private void registerListeners() {
+        unregisterListeners();
+
+        // Create a Criteria object
+        Criteria criteria = new Criteria();
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        criteria.setPowerRequirement(Criteria.POWER_HIGH);
+        criteria.setAltitudeRequired(true);
+        criteria.setBearingRequired(false);
+        criteria.setSpeedRequired(false);
+        criteria.setCostAllowed(false);
+
+        String bestAvailable = locationManager.getBestProvider(criteria, true);
+
+        if(bestAvailable != null) {
+            try {
+                locationManager.requestLocationUpdates(bestAvailable, 500, 1, activeListener);
+                currentLocation = new LatLng(locationManager.getLastKnownLocation(bestAvailable).getLatitude(),
+                        locationManager.getLastKnownLocation(bestAvailable).getLongitude());
+            }
+            catch (SecurityException e) {
+                // Fail Silently
+            }
+        }
+    }
+
+    private void unregisterListeners() {
+        try {
+            locationManager.removeUpdates(activeListener);
+        }
+        catch (SecurityException e) {
+            // Fail silently
+        }
+    }
+
+    private class ActiveListener implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location location) {
+            setCurrentLocation();
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            registerListeners();
+        }
+    };
 }

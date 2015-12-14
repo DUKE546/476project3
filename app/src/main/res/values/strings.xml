@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">FIRE</string>
     <string name="title_activity_maps">Map</string>
+    <string name="furniture_type">Furniture Type:</string>
+    <string name="description">Description:</string>
+    <string name="new_location_title">Report Fire</string>
+    <string name="report_btn">Report</string>
+    <string name="report_failed">Report Failed</string>
+    <string name="report_success">Report Success</string>
+    <string name="send_report">Sending Report...</string>
 </resources>
