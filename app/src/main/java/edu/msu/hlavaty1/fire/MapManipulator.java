@@ -1,6 +1,7 @@
 package edu.msu.hlavaty1.fire;
 
 import android.location.Location;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -27,7 +28,7 @@ public class MapManipulator {
     private LatLng currentLocation;
     private ArrayList<Fire> fires = new ArrayList<Fire>();
     private Cloud cloud;
-    private MapView view;
+    private FrameLayout view;
 
     public MapManipulator(GoogleMap googleMap, MapsActivity mapsActivity) {
         map = googleMap;
@@ -64,7 +65,9 @@ public class MapManipulator {
 
         cloud = new Cloud(activity);
 
-        view = (MapView) activity.findViewById(R.id.map);
+        view = (FrameLayout) activity.findViewById(R.id.map);
+
+        currentLocation = new LatLng(-6.340815, -61.394275);
 
         //TODO: uncomment when server call complete
         //populateFiresOnMap();
