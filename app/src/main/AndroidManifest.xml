@@ -40,7 +40,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".ui.MapsActivity"
+            android:name=".MapsActivity"
             android:label="@string/title_activity_maps" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -50,7 +50,7 @@
         </activity>
 
         <receiver
-            android:name=".gcm.GCMBroadcastReceiver"
+            android:name=".GCMBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -59,7 +59,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".gcm.GCMIntentService" />
+        <service android:name=".GCMIntentService" />
 
         <meta-data
             android:name="com.google.android.gms.version"
