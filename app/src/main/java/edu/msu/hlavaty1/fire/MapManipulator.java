@@ -33,7 +33,7 @@ public class MapManipulator {
                 if (inArea(location)) {
                     promptForReport(location);
                 } else {
-                    Toast.makeText(activity, "Fire not in your general area", Toast.LENGTH_SHORT);
+                    Toast.makeText(activity, "Fire not in your general area", Toast.LENGTH_SHORT).show();
                 }
             }
         });
