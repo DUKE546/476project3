@@ -1,6 +1,9 @@
 package edu.msu.hlavaty1.fire;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -26,6 +29,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LatLng currentLocation;
     private MapManipulator mapManipulator;
 
+    private BroadcastReceiver receiver;
+    public static final String RECEIVE = "edu.msu.hlavaty1.fire.MapsActivity.receive";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +55,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onResume() {
         super.onResume();
+
+        IntentFilter intentFilter = new IntentFilter(RECEIVE);
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getExtras().getString(GCMIntentService.ACTION_KEY, GCMIntentService.REFRESH_CASE);
+
+                if (action.equals(GCMIntentService.REFRESH_CASE)) {
+                    mapManipulator.populateFiresOnMap();
+                }
+            }
+        };
+
+        registerReceiver(receiver, intentFilter);
+
         registerListeners();
     }
 
@@ -58,6 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onPause() {
         unregisterListeners();
+        unregisterReceiver(receiver);
         super.onPause();
     }
 

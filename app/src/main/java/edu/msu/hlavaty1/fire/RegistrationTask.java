@@ -20,7 +20,7 @@ public class RegistrationTask extends AsyncTask<Void, Void, String> {
     private GoogleCloudMessaging gcm;
     private Context context;
 
-    private static final String SENDER_ID = "67433979500";
+    private static final String SENDER_ID = "829579373785";
 
     private Cloud cloud;
 
@@ -33,7 +33,7 @@ public class RegistrationTask extends AsyncTask<Void, Void, String> {
     protected String doInBackground(Void... params) {
         if (regService == null) {
             Registration.Builder builder = new Registration.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
-                    .setRootUrl("https://centered-healer-115414.appspot.com/_ah/api/");
+                    .setRootUrl("https://fire-1159.appspot.com/_ah/api/");
 
             regService = builder.build();
         }
@@ -65,6 +65,6 @@ public class RegistrationTask extends AsyncTask<Void, Void, String> {
 //            }
 //        }).start();
 //
-//        Log.i("DEVICE TOKEN", token);
+        Log.i("DEVICE TOKEN", token);
     }
 }

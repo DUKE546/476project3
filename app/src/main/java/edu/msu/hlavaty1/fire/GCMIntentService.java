@@ -16,6 +16,7 @@ public class GCMIntentService extends IntentService {
 
     // Cases that match notification title
     public static final String REFRESH_CASE = "refresh_fires";
+    public static final String ACTION_KEY = "action";
 
     public GCMIntentService() {
         super("GCMIntentService");
@@ -39,11 +40,10 @@ public class GCMIntentService extends IntentService {
 
                 switch (title) {
                     case REFRESH_CASE:
-//                        showToast(extras.getString("message"));
-//                        Intent moveIntent = new Intent(GameLiveActivity.RECEIVE);
-//                        moveIntent.putExtra(ACTION_KEY, NEW_MOVE_CASE);
-//                        moveIntent.putExtra(GameLiveActivity.PIPE_ID, extras.getString("data"));
-//                        sendBroadcast(moveIntent);
+                        showToast(extras.getString("message"));
+                        Intent refreshIntent = new Intent(MapsActivity.RECEIVE);
+                        refreshIntent.putExtra(ACTION_KEY, REFRESH_CASE);
+                        sendBroadcast(refreshIntent);
                         break;
                     default:
                         showToast("Unrecognized Notification");

@@ -98,6 +98,7 @@ public class MapManipulator {
         // TODO: Call to server for all current fires
         // TODO: Build fire objects from xml
         // TODO: Call addFire and addMarker
+        Log.i("REFRESH", "REFRESH");
     }
 
     public void setCurrentLocation(LatLng currentLocation) {
