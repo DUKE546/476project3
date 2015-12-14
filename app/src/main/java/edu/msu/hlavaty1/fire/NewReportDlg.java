@@ -11,10 +11,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 /**
  * Created by evanhlavaty on 12/13/15.
@@ -100,7 +97,7 @@ public class NewReportDlg extends DialogFragment {
                 } else {
                     fire.setId(Integer.parseInt(id));
                     mapManipulator.addFire(fire);
-                    mapManipulator.addMarkerAndMove(location);
+                    mapManipulator.addMarkerAndMove(location, fire.getId());
 
                     view.post(new Runnable() {
                         @Override

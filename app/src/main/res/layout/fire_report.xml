@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/furniture_type"
+        android:id="@+id/textFurnitureTypeLabel"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_margin="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/description"
+        android:id="@+id/textDescriptionLabel"
+        android:layout_below="@+id/textFurnitureTypeLabel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_margin="5dp" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/extinguished"
+        android:id="@+id/checkExtinguished"
+        android:layout_below="@+id/textDescription"
+        android:layout_alignParentStart="false"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/dummy"
+        android:id="@+id/textFurnitureType"
+        android:layout_alignBottom="@+id/textFurnitureTypeLabel"
+        android:layout_toRightOf="@+id/textFurnitureTypeLabel"
+        android:layout_toEndOf="@+id/textFurnitureTypeLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/dummy"
+        android:id="@+id/textDescription"
+        android:layout_alignBottom="@+id/textDescriptionLabel"
+        android:layout_toRightOf="@+id/textDescriptionLabel"
+        android:inputType="textMultiLine" />
+</RelativeLayout>

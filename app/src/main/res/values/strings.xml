@@ -8,4 +8,8 @@
     <string name="report_failed">Report Failed</string>
     <string name="report_success">Report Success</string>
     <string name="send_report">Sending Report...</string>
+    <string name="populate_failed">Populating Map Failed</string>
+    <string name="extinguished">Extinguished?</string>
+    <string name="dummy">Dummy</string>
+    <string name="close">Close</string>
 </resources>

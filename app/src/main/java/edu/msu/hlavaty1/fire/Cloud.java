@@ -23,6 +23,7 @@ public class Cloud {
     private static final String SAVE_FIRE_URL = "";
     private static final String GET_FIRES_URL = "";
     private static final String REGISTER_DEVICE_URL = "";
+    private static final String SAVE_EXTINGUISHED_URL = "";
 
 
     private static final String UTF8 = "UTF-8";
@@ -58,19 +59,20 @@ public class Cloud {
      * Register user to the cloud.
      * This should run in a thread
      *
-     * @return true if register is successful
+     * @return XmlPullParser of all fires in DB
      */
-    public boolean getFiresFromCloud() {
+    public XmlPullParser getFiresFromCloud() {
         String query = GET_FIRES_URL + "?magic=" + MAGIC;
 
         InputStream stream = null;
+        XmlPullParser reports = null;
         try {
             URL url = new URL(query);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             int responseCode = conn.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                return false;
+                return null;
             }
 
             stream = conn.getInputStream();
@@ -87,16 +89,19 @@ public class Cloud {
 
                 String status = xmlR.getAttributeValue(null, "status");
                 if (status.equals("no")) {
-                    return false;
+                    return null;
                 }
+
+                reports = xmlR;
+
             } catch (XmlPullParserException e) {
-                return false;
+                return null;
             }
         } catch (MalformedURLException e) {
             // Should never happen
-            return false;
+            return null;
         } catch (IOException ex) {
-            return false;
+            return null;
         } finally {
             if (stream != null) {
                 try {
@@ -107,7 +112,7 @@ public class Cloud {
             }
         }
 
-        return true;
+        return reports;
     }
 
     /**
@@ -128,11 +133,11 @@ public class Cloud {
         try {
             xml.setOutput(writer);
 
-            xml.startTag(null, "fire");
+            xml.startTag(null, "report");
 
             fire.toXML(xml);
 
-            xml.endTag(null, "fire");
+            xml.endTag(null, "report");
 
             xml.endDocument();
 
@@ -231,6 +236,64 @@ public class Cloud {
      */
     public boolean registerDeviceToCloud(String deviceToken) {
         String query = REGISTER_DEVICE_URL + "?device=" + deviceToken;
+
+        InputStream stream = null;
+        try {
+            URL url = new URL(query);
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            int responseCode = conn.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                return false;
+            }
+
+            stream = conn.getInputStream();
+
+            /**
+             * Create an XML parser for the result
+             */
+            try {
+                XmlPullParser xmlR = Xml.newPullParser();
+                xmlR.setInput(stream, UTF8);
+
+                xmlR.nextTag();      // Advance to first tag
+                xmlR.require(XmlPullParser.START_TAG, null, "fire");
+
+                String status = xmlR.getAttributeValue(null, "status");
+                if (status.equals("no")) {
+                    return false;
+                }
+            } catch (XmlPullParserException e) {
+                return false;
+            }
+        } catch (MalformedURLException e) {
+            // Should never happen
+            return false;
+        } catch (IOException ex) {
+            return false;
+        } finally {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException ex) {
+                    // Fail silently
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Chnage extinguished state
+     * This should be run in a thread
+     *
+     * @param fire
+     * @return true if save is successful
+     */
+    public boolean saveExtinguishedToCloud(Fire fire) {
+        String query = SAVE_EXTINGUISHED_URL + "?id=" + fire.getId() + "&extinguished=" + fire.isExtinguished();
 
         InputStream stream = null;
         try {
