@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -111,6 +112,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.animateCamera(zoom);
 
         mapManipulator.setCurrentLocation(currentLocation);
+        if (mapManipulator.inDanger()){
+            Toast.makeText(getBaseContext(), R.string.populate_failed, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void registerListeners() {

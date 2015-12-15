@@ -199,9 +199,23 @@ public class MapManipulator implements GoogleMap.OnMarkerClickListener, GoogleMa
             }
         }).start();
     }
+    public boolean inDanger(){
+
+        boolean inDanger = false ;
+
+        for (Fire fire : fires){
+
+          if( inArea(fire.getLatLng())){
+                inDanger = true ;
+            }
+        }
+
+        return inDanger ;
+    }
 
     public void setCurrentLocation(LatLng currentLocation) {
         this.currentLocation = currentLocation;
     }
+
 }
 
