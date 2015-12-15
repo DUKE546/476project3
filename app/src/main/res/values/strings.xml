@@ -7,7 +7,7 @@
     <string name="report_btn">Report</string>
     <string name="report_failed">Report Failed</string>
     <string name="report_success">Report Success</string>
-    <string name="send_report">Sending Report...</string>
+    <string name="loading">Loading...</string>
     <string name="populate_failed">Populating Map Failed</string>
     <string name="extinguished">Extinguished?</string>
     <string name="extinguished_failed">Extinguished Failed To Update</string>

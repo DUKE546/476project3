@@ -1,6 +1,8 @@
 package edu.msu.hlavaty1.fire.fire;
 
 import android.location.Location;
+import android.os.Bundle;
+import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import edu.msu.hlavaty1.fire.R;
+import edu.msu.hlavaty1.fire.ui.LoadingDlg;
 import edu.msu.hlavaty1.fire.ui.MapsActivity;
 import edu.msu.hlavaty1.fire.ui.NewReportDlg;
 import edu.msu.hlavaty1.fire.ui.ReportDlg;
@@ -26,7 +29,7 @@ import edu.msu.hlavaty1.fire.util.Cloud;
 /**
  * Created by evanhlavaty on 12/13/15.
  */
-public class MapManipulator {
+public class MapManipulator implements GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener {
 
     private final GoogleMap map;
     private final MapsActivity activity;
@@ -39,32 +42,9 @@ public class MapManipulator {
         map = googleMap;
         activity = mapsActivity;
 
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng location) {
-                if (inArea(location)) {
-                    promptForReport(location);
-                } else {
-                    Toast.makeText(activity, "Fire not in your general area", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        map.setOnMapClickListener(this);
 
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-            @Override
-            public boolean onMarkerClick(Marker arg0) {
-                for (Fire fire : fires) {
-                    if (fire.getId().equals(arg0.getSnippet())) {
-                        ReportDlg reportDlg = new ReportDlg();
-                        reportDlg.populate(fire);
-                        reportDlg.show(activity.getFragmentManager(), "report");
-                    }
-                }
-                return true;
-            }
-
-        });
+        map.setOnMarkerClickListener(this);
 
         map.setMyLocationEnabled(true);
 
@@ -74,23 +54,55 @@ public class MapManipulator {
 
         currentLocation = new LatLng(-6.340815, -61.394275);
 
-        //TODO: uncomment when server call complete
-        //populateFiresOnMap();
+        populateFiresOnMap();
+    }
+
+    /**
+     * handle map click event
+     */
+    @Override
+    public void onMapClick(LatLng location) {
+        if (inArea(location)) {
+            promptForReport(location);
+        } else {
+            Toast.makeText(activity, "Fire not in your general area", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * handle marker click event
+     */
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        for (Fire fire : fires) {
+            if (fire.getId().equals(Integer.parseInt(marker.getTitle()))) {
+                Bundle bundle = new Bundle();
+                bundle.putString(Fire.FURNITURE, fire.getFurniture());
+                bundle.putString(Fire.DESCRIPTION, fire.getDescription());
+                bundle.putBoolean(Fire.EXTINGUISHED, fire.isExtinguished());
+
+                ReportDlg reportDlg = new ReportDlg();
+                reportDlg.setArguments(bundle);
+                reportDlg.setFire(fire);
+                reportDlg.show(activity.getFragmentManager(), "report");
+                return true;
+            }
+        }
+        return false;
     }
 
     private void promptForReport(LatLng location) {
         NewReportDlg newReportDlg = new NewReportDlg();
         newReportDlg.setLocation(location);
         newReportDlg.setMapManipulator(this);
+        newReportDlg.setCallingView(view);
         newReportDlg.show(activity.getFragmentManager(), "new report");
     }
 
-    public void addFire(Fire fire) {
+    public void addMarkerAndMove(LatLng location, Fire fire) {
         fires.add(fire);
-    }
 
-    public void addMarkerAndMove(LatLng location, Integer id) {
-        MarkerOptions marker =  new MarkerOptions().position(location).snippet(Integer.toString(id));
+        MarkerOptions marker = new MarkerOptions().position(location).title(Integer.toString(fire.getId()));
         CameraUpdate center = CameraUpdateFactory.newLatLng(location);
         CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
@@ -100,8 +112,10 @@ public class MapManipulator {
     }
 
 
-    public void addMarker(LatLng location, Integer id) {
-        MarkerOptions marker =  new MarkerOptions().position(location).snippet(Integer.toString(id));
+    public void addMarker(LatLng location, Fire fire) {
+        fires.add(fire);
+
+        MarkerOptions marker =  new MarkerOptions().position(location).title(Integer.toString(fire.getId()));
         map.addMarker(marker);
     }
 
@@ -121,6 +135,12 @@ public class MapManipulator {
      * This should get called on create and when a notification is received
      */
     public void populateFiresOnMap() {
+        fires.clear();
+        map.clear();
+
+        final LoadingDlg loadingDlg = new LoadingDlg();
+        loadingDlg.show(activity.getFragmentManager(), "populate map");
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -128,27 +148,37 @@ public class MapManipulator {
 
                 try {
                     reports.nextTag();      // Advance to first tag
-                    reports.require(XmlPullParser.START_TAG, null, "report");
+                    reports.require(XmlPullParser.START_TAG, null, "id");
 
-                    String report = reports.getAttributeValue(null, "report");
+                    String id = reports.getAttributeValue(null, "fire");
 
-                    while (report.equals("report")) {
+                    cloud.skipToEndTag(reports);
 
-                        final Fire fire = Fire.fromXML(reports);
+                    while (id != null) {
 
-                        addFire(fire);
+                        reports.nextTag();
+                        reports.require(XmlPullParser.START_TAG, null, "report");
+
+                        final Fire fire = Fire.fromXML(reports, id);
 
                         view.post(new Runnable() {
                             @Override
                             public void run() {
-                                addMarker(fire.getLatLng(), fire.getId());
+                                addMarker(fire.getLatLng(), fire);
                             }
                         });
 
-                        reports.nextTag();      // Advance to first tag
-                        reports.require(XmlPullParser.START_TAG, null, "report");
-                        report = reports.getAttributeValue(null, "report");
+                        cloud.skipToEndTag(reports);
+
+                        reports.nextTag();
+                        id = reports.getAttributeValue(null, "fire");
+
+                        if (id != null) {
+                            cloud.skipToEndTag(reports);
+                        }
                     }
+
+                    loadingDlg.dismiss();
                 }
                 catch (XmlPullParserException xml) {
                     view.post(new Runnable() {

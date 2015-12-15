@@ -18,7 +18,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/editFurnitureType"
         android:layout_below="@+id/textFurnitureTypeLabel"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:inputType="text" />
 
     <TextView
         android:layout_width="wrap_content"

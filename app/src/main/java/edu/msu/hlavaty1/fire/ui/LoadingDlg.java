@@ -11,7 +11,7 @@ import edu.msu.hlavaty1.fire.R;
 /**
  * Created by evanhlavaty on 12/13/15.
  */
-public class SubmitLoadingDlg extends DialogFragment {
+public class LoadingDlg extends DialogFragment {
 
     /**
      * Create the dialog box
@@ -22,7 +22,7 @@ public class SubmitLoadingDlg extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
         // Set the title
-        builder.setTitle(R.string.send_report);
+        builder.setTitle(R.string.loading);
 
         // Create the dialog box
         final AlertDialog dlg = builder.create();

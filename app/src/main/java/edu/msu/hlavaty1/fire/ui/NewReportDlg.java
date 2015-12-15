@@ -1,6 +1,5 @@
 package edu.msu.hlavaty1.fire.ui;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -9,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -25,6 +25,8 @@ public class NewReportDlg extends DialogFragment {
 
     private AlertDialog dlg;
     private LatLng location;
+    private View view;
+    private FrameLayout callingView;
 
     private MapManipulator mapManipulator;
 
@@ -44,8 +46,7 @@ public class NewReportDlg extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         // Pass null as the parent view because its going in the dialog layout
-        @SuppressLint("InflateParams")
-        final View view = inflater.inflate(R.layout.new_fire_report, null);
+        view = inflater.inflate(R.layout.new_fire_report, null);
         builder.setView(view);
 
         // Add a cancel button
@@ -80,19 +81,16 @@ public class NewReportDlg extends DialogFragment {
         fire.setExtinguished(false);
         fire.setLatLng(location);
 
-        final SubmitLoadingDlg submitLoadingDlg = new SubmitLoadingDlg();
-        submitLoadingDlg.show(getActivity().getFragmentManager(), "submitting");
+        final LoadingDlg loadingDlg = new LoadingDlg();
+        loadingDlg.show(getActivity().getFragmentManager(), "submitting");
 
-        final EditText view = (EditText) getActivity().findViewById(R.id.editDescriptionText);
-
-        Runnable registerRunnable = new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                // Create a cloud object
                 Cloud cloud = new Cloud(view.getContext());
                 final String id = cloud.saveFireToCloud(fire);
                 if (id == null) {
-                    view.post(new Runnable() {
+                    callingView.post(new Runnable() {
                         @Override
                         public void run() {
                             // If we fail to register, display a toast
@@ -101,30 +99,27 @@ public class NewReportDlg extends DialogFragment {
                     });
                 } else {
                     fire.setId(Integer.parseInt(id));
-                    mapManipulator.addFire(fire);
-                    mapManipulator.addMarkerAndMove(location, fire.getId());
 
-                    view.post(new Runnable() {
+                    callingView.post(new Runnable() {
                         @Override
                         public void run() {
+                            mapManipulator.addMarkerAndMove(location, fire);
                             Toast.makeText(view.getContext(), R.string.report_success, Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
 
-                submitLoadingDlg.dismiss();
+                loadingDlg.dismiss();
             }
-        };
-
-        new Thread(registerRunnable).start();
+        }).start();
     }
 
     private String getDescription() {
-        return ((EditText) getActivity().findViewById(R.id.editDescriptionText)).getText().toString();
+        return ((EditText) view.findViewById(R.id.editDescriptionText)).getText().toString();
     }
 
     private String getFurniture() {
-        return ((EditText) getActivity().findViewById(R.id.editFurnitureType)).getText().toString();
+        return ((EditText) view.findViewById(R.id.editFurnitureType)).getText().toString();
     }
 
     public void setLocation(LatLng location) {
@@ -134,4 +129,6 @@ public class NewReportDlg extends DialogFragment {
     public void setMapManipulator(MapManipulator mapManipulator) {
         this.mapManipulator = mapManipulator;
     }
+
+    public void setCallingView(FrameLayout view) { this.callingView = view; }
 }

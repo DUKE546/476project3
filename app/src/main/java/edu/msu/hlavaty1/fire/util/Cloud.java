@@ -67,7 +67,7 @@ public class Cloud {
      * @return XmlPullParser of all fires in DB
      */
     public XmlPullParser loadFiresFromCloud() {
-        String query = GET_FIRES_URL + "?magic=" + MAGIC + "&magic=" + MAGIC;
+        String query = GET_FIRES_URL + "?magic=" + MAGIC;
 
         InputStream stream = null;
         XmlPullParser reports = null;
@@ -173,7 +173,7 @@ public class Cloud {
          */
         byte[] postData = postDataStr.getBytes();
 
-        String query = SAVE_FIRE_URL + "&magic=" + MAGIC;
+        String query = SAVE_FIRE_URL + "?magic=" + MAGIC;
 
         InputStream stream = null;
         try {
@@ -212,7 +212,7 @@ public class Cloud {
                     return null;
                 }
 
-                fireId = xmlR.getAttributeValue(null, "id");
+                fireId = xmlR.getAttributeValue(null, "fireId");
 
                 // We are done
             } catch (XmlPullParserException ex) {

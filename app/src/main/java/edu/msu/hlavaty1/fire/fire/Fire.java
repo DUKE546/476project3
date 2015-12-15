@@ -11,16 +11,23 @@ import java.io.IOException;
  * Created by evanhlavaty on 12/13/15.
  */
 public class Fire {
+    public static final String ID = "id";
+    public static final String FURNITURE = "furniture";
+    public static final String DESCRIPTION = "description";
+    public static final String EXTINGUISHED = "extinguished";
+    public static final String LAT = "lat";
+    public static final String LNG = "lng";
+
     private Integer id;
     private String furniture;
     private String description;
     private LatLng latLng;
     private Boolean extinguished;
 
-    public static Fire fromXML(XmlPullParser xml) {
+    public static Fire fromXML(XmlPullParser xml, String id) {
         Fire fire = new Fire();
 
-        fire.setId(Integer.parseInt(xml.getAttributeValue(null, "id")));
+        fire.setId(Integer.parseInt(id));
         fire.setFurniture(xml.getAttributeValue(null, "furniture"));
         fire.setDescription(xml.getAttributeValue(null, "description"));
         fire.setLatLng(new LatLng(Double.parseDouble(xml.getAttributeValue(null, "lat")),
