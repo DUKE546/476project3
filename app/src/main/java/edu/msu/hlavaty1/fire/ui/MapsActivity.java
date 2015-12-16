@@ -4,12 +4,17 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -29,6 +34,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ActiveListener activeListener = new ActiveListener();
     private LocationManager locationManager = null;
+
+    private SensorManager sensorManager = null;
+    private Sensor accelSensor = null;
+    private AccelListener accelListener = null;
 
     private GoogleMap map;
     private LatLng currentLocation;
@@ -76,6 +85,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         registerReceiver(receiver, intentFilter);
 
+        sensorManager = (SensorManager)this.getSystemService(Context.SENSOR_SERVICE);
+        accelSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if(accelSensor != null) {
+            accelListener = new AccelListener(); sensorManager.registerListener(accelListener, accelSensor, SensorManager.SENSOR_DELAY_GAME);
+        }
+
         registerListeners();
     }
 
@@ -86,6 +101,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onPause() {
         unregisterListeners();
         unregisterReceiver(receiver);
+
+        if(accelSensor != null) {
+            sensorManager.unregisterListener(accelListener); accelListener = null;
+            accelSensor = null;
+        }
+
         super.onPause();
     }
 
@@ -112,9 +133,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         map.animateCamera(zoom);
 
         mapManipulator.setCurrentLocation(currentLocation);
-        if (mapManipulator.inDanger()){
-            Toast.makeText(getBaseContext(), R.string.populate_failed, Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void registerListeners() {
@@ -132,13 +150,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String bestAvailable = locationManager.getBestProvider(criteria, true);
 
         if(bestAvailable != null) {
-            try {
-                locationManager.requestLocationUpdates(bestAvailable, 500, 1, activeListener);
-                currentLocation = new LatLng(locationManager.getLastKnownLocation(bestAvailable).getLatitude(),
-                        locationManager.getLastKnownLocation(bestAvailable).getLongitude());
+            locationManager.requestLocationUpdates(bestAvailable, 500, 1, activeListener);
+            Location location = locationManager.getLastKnownLocation(bestAvailable);
+            if (location != null) {
+                Double lat = location.getLatitude();
+                Double lng = location.getLongitude();
+                currentLocation = new LatLng(lat, lng);
             }
-            catch (SecurityException e) {
-                // Fail Silently
+            else {
+                currentLocation = new LatLng(-6.340815, -61.394275);
             }
         }
     }
@@ -174,4 +194,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             registerListeners();
         }
     };
+
+    private class AccelListener implements SensorEventListener {
+
+        float[] gravity = {0, 0, 0};
+        float[] linear_acceleration = new float[3];
+
+        @Override
+        public void onAccuracyChanged(Sensor arg0, int arg1) {
+
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            float kFilteringFactor=0.6f;
+
+            gravity[0] = (event.values[0] * kFilteringFactor) + (gravity[0] * (1.0f - kFilteringFactor));
+            gravity[1] = (event.values[1] * kFilteringFactor) + (gravity[1] * (1.0f - kFilteringFactor));
+            gravity[2] = (event.values[2] * kFilteringFactor) + (gravity[2] * (1.0f - kFilteringFactor));
+
+            linear_acceleration[0] = (event.values[0] - gravity[0]);
+            linear_acceleration[1] = (event.values[1] - gravity[1]);
+            linear_acceleration[2] = (event.values[2] - gravity[2]);
+
+            float magnitude;
+            magnitude = (float)Math.sqrt(linear_acceleration[0]*linear_acceleration[0]+linear_acceleration[1]*linear_acceleration[1]+linear_acceleration[2]*linear_acceleration[2]);
+            magnitude = Math.abs(magnitude);
+
+            if (mapManipulator != null) {
+                if (magnitude < 0.01 && mapManipulator.inDanger()) {
+                    SinglularToast.makeText(getBaseContext(), R.string.danger, Toast.LENGTH_SHORT).show();
+                } else {
+                    SinglularToast.makeText(getBaseContext(), R.string.danger, Toast.LENGTH_SHORT).cancel();
+                }
+            }
+        }
+
+    }
 }

@@ -67,6 +67,7 @@ public class MapManipulator implements GoogleMap.OnMarkerClickListener, GoogleMa
         } else {
             Toast.makeText(activity, "Fire not in your general area", Toast.LENGTH_SHORT).show();
         }
+        //promptForReport(location);
     }
 
     /**
@@ -148,36 +149,35 @@ public class MapManipulator implements GoogleMap.OnMarkerClickListener, GoogleMa
 
                 try {
                     reports.nextTag();      // Advance to first tag
-                    reports.require(XmlPullParser.START_TAG, null, "id");
 
                     String id = reports.getAttributeValue(null, "fire");
-
-                    cloud.skipToEndTag(reports);
-
-                    while (id != null) {
-
-                        reports.nextTag();
-                        reports.require(XmlPullParser.START_TAG, null, "report");
-
-                        final Fire fire = Fire.fromXML(reports, id);
-
-                        view.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                addMarker(fire.getLatLng(), fire);
-                            }
-                        });
-
+                    if (id != null) {
                         cloud.skipToEndTag(reports);
 
-                        reports.nextTag();
-                        id = reports.getAttributeValue(null, "fire");
+                        while (id != null) {
 
-                        if (id != null) {
+                            reports.nextTag();
+                            reports.require(XmlPullParser.START_TAG, null, "report");
+
+                            final Fire fire = Fire.fromXML(reports, id);
+
+                            view.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    addMarker(fire.getLatLng(), fire);
+                                }
+                            });
+
                             cloud.skipToEndTag(reports);
+
+                            reports.nextTag();
+                            id = reports.getAttributeValue(null, "fire");
+
+                            if (id != null) {
+                                cloud.skipToEndTag(reports);
+                            }
                         }
                     }
-
                     loadingDlg.dismiss();
                 }
                 catch (XmlPullParserException xml) {
@@ -205,7 +205,7 @@ public class MapManipulator implements GoogleMap.OnMarkerClickListener, GoogleMa
 
         for (Fire fire : fires){
 
-          if( inArea(fire.getLatLng())){
+          if( inArea(fire.getLatLng()) && !fire.isExtinguished()){
                 inDanger = true ;
             }
         }

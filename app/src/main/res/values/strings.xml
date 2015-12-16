@@ -13,4 +13,5 @@
     <string name="extinguished_failed">Extinguished Failed To Update</string>
     <string name="dummy">Dummy</string>
     <string name="close">Close</string>
+    <string name="danger">Danger get away, fire close!</string>
 </resources>
